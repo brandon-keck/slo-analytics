@@ -294,6 +294,140 @@
             });
         </script>
 
+
+        <!-- Interactive Margin Leak Calculator Section -->
+        <section id="calculator" class="mb-24 bg-gradient-to-br from-indigo-950/50 to-slate-900/90 border border-indigo-500/30 rounded-3xl p-8 backdrop-blur-sm shadow-2xl">
+            <div class="text-center max-w-2xl mx-auto mb-10">
+                <span class="text-xs font-semibold tracking-wider text-indigo-400 uppercase bg-indigo-950/80 border border-indigo-500/30 px-3 py-1 rounded-full inline-block mb-3">
+                    Interactive Estimator
+                </span>
+                <h3 class="text-3xl font-bold text-white">How Much Margin Are You Leaking?</h3>
+                <p class="text-slate-400 text-sm mt-2">
+                    Adjust the sliders below to estimate your business's annual revenue lost to unbilled labor, missing parts billing, and manual spreadsheet admin.
+                </p>
+            </div>
+
+            <div class="grid lg:grid-cols-12 gap-8 items-center">
+                
+                <!-- Left Side: Interactive Sliders -->
+                <div class="lg:col-span-7 space-y-6 bg-slate-950/60 p-6 rounded-2xl border border-slate-800">
+                    
+                    <!-- Slider 1: Number of Field Techs -->
+                    <div>
+                        <div class="flex justify-between items-center mb-2">
+                            <label class="text-sm font-semibold text-slate-200">Active Field Technicians / Crews</label>
+                            <span id="techsVal" class="text-indigo-400 font-bold text-base">6 Techs</span>
+                        </div>
+                        <input type="range" id="techs" min="2" max="25" value="6" step="1" 
+                               class="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-indigo-500">
+                        <div class="flex justify-between text-xs text-slate-500 mt-1">
+                            <span>2</span>
+                            <span>15</span>
+                            <span>25+</span>
+                        </div>
+                    </div>
+
+                    <!-- Slider 2: Unbilled Hours per Tech per Week -->
+                    <div>
+                        <div class="flex justify-between items-center mb-2">
+                            <label class="text-sm font-semibold text-slate-200">Unbilled Time / Drive Drag (hrs/tech/week)</label>
+                            <span id="hoursVal" class="text-indigo-400 font-bold text-base">2.5 hrs/wk</span>
+                        </div>
+                        <input type="range" id="hours" min="0.5" max="6" value="2.5" step="0.5" 
+                               class="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-indigo-500">
+                        <div class="flex justify-between text-xs text-slate-500 mt-1">
+                            <span>30 mins</span>
+                            <span>3 hrs</span>
+                            <span>6 hrs</span>
+                        </div>
+                    </div>
+
+                    <!-- Slider 3: Unbilled Parts & Supply Receipts per Month -->
+                    <div>
+                        <div class="flex justify-between items-center mb-2">
+                            <label class="text-sm font-semibold text-slate-200">Unbilled Parts & Supply House Receipts ($/mo)</label>
+                            <span id="partsVal" class="text-indigo-400 font-bold text-base">$600 / mo</span>
+                        </div>
+                        <input type="range" id="parts" min="100" max="3000" value="600" step="100" 
+                               class="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-indigo-500">
+                        <div class="flex justify-between text-xs text-slate-500 mt-1">
+                            <span>$100</span>
+                            <span>$1,500</span>
+                            <span>$3,000</span>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Right Side: Live Leak Output Card -->
+                <div class="lg:col-span-5 flex flex-col justify-between bg-indigo-950/60 border border-indigo-500/40 p-6 rounded-2xl text-center space-y-6 shadow-lg shadow-indigo-950/80">
+                    <div>
+                        <span class="text-xs font-semibold tracking-wider text-rose-400 uppercase bg-rose-950/80 border border-rose-500/30 px-3 py-1 rounded-full inline-block mb-3">
+                            Estimated Hidden Profit Leak
+                        </span>
+                        <div id="totalLeak" class="text-4xl sm:text-5xl font-extrabold text-white tracking-tight my-2">
+                            $39,720
+                        </div>
+                        <p class="text-xs text-slate-400">per year slipping through operational blindspots</p>
+                    </div>
+
+                    <div class="space-y-2 text-left bg-slate-950/50 p-4 rounded-xl border border-slate-800 text-xs text-slate-300">
+                        <div class="flex justify-between">
+                            <span class="text-slate-400">Labor & Overtime Leak:</span>
+                            <span id="laborBreakdown" class="font-bold text-white">$32,760/yr</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-slate-400">Unbilled Materials:</span>
+                            <span id="partsBreakdown" class="font-bold text-white">$7,200/yr</span>
+                        </div>
+                    </div>
+
+                    <a href="mailto:brandon.keck87@gmail.com?subject=Data Audit Request - Calculator Results" 
+                       class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-medium px-6 py-3.5 rounded-xl text-center shadow-lg shadow-indigo-600/30 transition-all text-sm block">
+                        Plug My Leaks — Request Audit
+                    </a>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- Calculator Script -->
+        <script>
+            function calculateLeak() {
+                const techs = parseFloat(document.getElementById('techs').value);
+                const hours = parseFloat(document.getElementById('hours').value);
+                const parts = parseFloat(document.getElementById('parts').value);
+
+                // Update UI Labels
+                document.getElementById('techsVal').innerText = `${techs} Techs`;
+                document.getElementById('hoursVal').innerText = `${hours} hrs/wk`;
+                document.getElementById('partsVal').innerText = `$${parts.toLocaleString()} / mo`;
+
+                // Calculation Logic:
+                // Labor Leak = Techs * Unbilled Hours/Wk * 52 Weeks * $42/hr (average burdened labor rate)
+                const burdenedLaborRate = 42;
+                const annualLaborLeak = techs * hours * 52 * burdenedLaborRate;
+                
+                // Parts Leak = Monthly Unbilled Parts * 12 Months
+                const annualPartsLeak = parts * 12;
+
+                const totalAnnualLeak = annualLaborLeak + annualPartsLeak;
+
+                // Render Results
+                document.getElementById('totalLeak').innerText = `$${Math.round(totalAnnualLeak).toLocaleString()}`;
+                document.getElementById('laborBreakdown').innerText = `$${Math.round(annualLaborLeak).toLocaleString()}/yr`;
+                document.getElementById('partsBreakdown').innerText = `$${Math.round(annualPartsLeak).toLocaleString()}/yr`;
+            }
+
+            // Event Listeners
+            document.getElementById('techs').addEventListener('input', calculateLeak);
+            document.getElementById('hours').addEventListener('input', calculateLeak);
+            document.getElementById('parts').addEventListener('input', calculateLeak);
+
+            // Initial Run
+            calculateLeak();
+        </script>
+
         <!-- Call to Action -->
         <section class="bg-indigo-950/60 border border-indigo-500/30 rounded-2xl p-8 text-center">
             <h3 class="text-2xl font-bold text-white mb-2">Free 15-Minute Data Health Audit</h3>
